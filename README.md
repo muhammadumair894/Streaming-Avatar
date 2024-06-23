@@ -31,10 +31,10 @@ Frontend Setup
    npm start
 
 Usage:
-1 Enter your text prompt in the input field.
-2 Click on "Generate Response" to get the text response from the language model.
-3 Click on "Convert to Speech" to generate speech from the text response.
-4 Click on "Generate Lipsync Video" to create a lipsync video from the generated speech.
+1. Enter your text prompt in the input field.
+2. Click on "Generate Response" to get the text response from the language model.
+3. Click on "Convert to Speech" to generate speech from the text response.
+4. Click on "Generate Lipsync Video" to create a lipsync video from the generated speech.
 
 Project Structure:
 . frontend: Contains the React app.
