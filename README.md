@@ -30,13 +30,14 @@ Frontend Setup
 3. Run file:
    npm start
 
-Usage
-Enter your text prompt in the input field.
-Click on "Generate Response" to get the text response from the language model.
-Click on "Convert to Speech" to generate speech from the text response.
-Click on "Generate Lipsync Video" to create a lipsync video from the generated speech.
-Project Structure
-frontend: Contains the React app.
-App.js: Main component for the user interface.
-backend: Contains the backend server code.
-main.py: Main server file handling requests for text generation, text-to-speech, and lipsync video creation.
+Usage:
+. Enter your text prompt in the input field.
+. Click on "Generate Response" to get the text response from the language model.
+. Click on "Convert to Speech" to generate speech from the text response.
+. Click on "Generate Lipsync Video" to create a lipsync video from the generated speech.
+
+Project Structure:
+. frontend: Contains the React app.
+. App.js: Main component for the user interface.
+. backend: Contains the backend server code.
+. main.py: Main server file handling requests for text generation, text-to-speech, and lipsync video creation.
