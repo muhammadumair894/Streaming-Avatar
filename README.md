@@ -37,7 +37,7 @@ Usage:
 4. Click on "Generate Lipsync Video" to create a lipsync video from the generated speech.
 
 Project Structure:
-. frontend: Contains the React app.
-. App.js: Main component for the user interface.
-. backend: Contains the backend server code.
-. main.py: Main server file handling requests for text generation, text-to-speech, and lipsync video creation.
+1. frontend: Contains the React app.
+2. App.js: Main component for the user interface.
+3. backend: Contains the backend server code.
+4. main.py: Main server file handling requests for text generation, text-to-speech, and lipsync video creation.
