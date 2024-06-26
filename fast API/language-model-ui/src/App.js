@@ -2,95 +2,92 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 function App() {
-  const [inputText, setInputText] = useState('');
-  const [outputText, setOutputText] = useState('');
-  const [audioSrc, setAudioSrc] = useState(null);
-  const [videoSrc, setVideoSrc] = useState(null);
+  const [prompt, setPrompt] = useState('');
+  const [response, setResponse] = useState('');
+  const [audioSrc, setAudioSrc] = useState('');
+  const [videoSrc, setVideoSrc] = useState('');
+  const [error, setError] = useState('');
 
-  // Function to handle generating response from input text
-  const generateResponse = async () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
     try {
-      const response = await axios.post('http://127.0.0.1:8000/generate', {
-        prompt: inputText
+      // Generate response
+      const generateResponse = await axios.post('http://localhost:8000/generate', { prompt });
+      const generatedText = generateResponse.data.response;
+      setResponse(generatedText);
+
+      // Convert text to speech and generate lipsync video
+      const ttsResponse = await axios.post('http://localhost:8000/text-to-speech', { text: generatedText }, {
+        responseType: 'blob'
       });
 
-      setOutputText(response.data.response);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  // Function to convert generated text to speech
-  const generateSpeech = async () => {
-    try {
-      const response = await axios.post('http://127.0.0.1:8000/text-to-speech', {
-        text: outputText
-      }, {
-        responseType: 'blob'  // Important to get the response as a blob
-      });
-      const audioURL = URL.createObjectURL(response.data);
+      const audioURL = window.URL.createObjectURL(new Blob([ttsResponse.data], { type: 'audio/wav' }));
       setAudioSrc(audioURL);
-    } catch (error) {
-      console.error('Error generating speech:', error);
-    }
-  };
 
-  // Function to generate lipsync video
-  const generateLipsyncVideo = async () => {
-    try {
-      const response = await axios.post('http://127.0.0.1:8000/lipsync', {
-        // Optionally send any other data needed
-      }, {
-        responseType: 'blob'  // Important to get the response as a blob
-      });
-      const videoURL = URL.createObjectURL(response.data);
+      const videoURL = window.URL.createObjectURL(new Blob([ttsResponse.data], { type: 'video/mp4' }));
       setVideoSrc(videoURL);
+
     } catch (error) {
-      console.error('Error generating lipsync video:', error);
+      if (error.response && error.response.status === 400) {
+        const errorMessage = error.response.data.detail;
+
+        // Set the error message
+        setError(errorMessage);
+
+        // Convert error message to speech and generate lipsync video
+        const ttsResponse = await axios.post('http://localhost:8000/text-to-speech', { text: errorMessage }, {
+          responseType: 'blob'
+        });
+
+        const audioURL = window.URL.createObjectURL(new Blob([ttsResponse.data], { type: 'audio/wav' }));
+        setAudioSrc(audioURL);
+
+        const videoURL = window.URL.createObjectURL(new Blob([ttsResponse.data], { type: 'video/mp4' }));
+        setVideoSrc(videoURL);
+      } else {
+        console.error("Error generating response or lipsync video:", error);
+      }
     }
   };
 
   return (
     <div className="App">
-      <h1>Language Model UI</h1>
-      <div className="input-group">
-        <label htmlFor="inputText">Input Text:</label>
-        <textarea
-          id="inputText"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="Enter your prompt here..."
-          required
-        />
-      </div>
-      <button className="btn" onClick={generateResponse}>Generate Response</button>
-      <div className="output-group">
-        <label htmlFor="outputText">Generated Response:</label>
-        <textarea
-          id="outputText"
-          value={outputText}
-          placeholder="Generated response will appear here..."
-          readOnly
-        />
-      </div>
-      {outputText && (
+      <header className="App-header">
+        <h1>Text to Avatar Speech</h1>
+        <form onSubmit={handleSubmit}>
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Enter your text"
+            rows="4"
+            cols="50"
+          />
+          <br />
+          <button type="submit">Generate</button>
+        </form>
+        {error && <div style={{ color: 'red' }}>{error}</div>}
         <div>
-          <button className="btn" onClick={generateSpeech}>Convert to Speech</button>
+          {response && (
+            <div>
+              <h2>Generated Response:</h2>
+              <p>{response}</p>
+            </div>
+          )}
+          {audioSrc && (
+            <div>
+              <h2>Generated Audio:</h2>
+              <audio controls src={audioSrc}></audio>
+            </div>
+          )}
+          {videoSrc && (
+            <div>
+              <h2>Generated Video:</h2>
+              <video controls src={videoSrc} width="600" height="400"></video>
+            </div>
+          )}
         </div>
-      )}
-      {audioSrc && (
-        <div>
-          <h3>Generated Speech:</h3>
-          <audio controls src={audioSrc}></audio>
-          <button className="btn" onClick={generateLipsyncVideo}>Generate Lipsync Video</button>
-        </div>
-      )}
-      {videoSrc && (
-        <div>
-          <h3>Generated Lipsync Video:</h3>
-          <video controls src={videoSrc}></video>
-        </div>
-      )}
+      </header>
     </div>
   );
 }
